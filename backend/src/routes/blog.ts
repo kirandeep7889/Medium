@@ -1,3 +1,4 @@
+import { createBlogInput, updateBlogInput } from "@kirandeep_7889/medium-common";
 import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { Hono } from "hono";
@@ -31,11 +32,20 @@ blogRouter.use('/*', async (c, next) => {
 
 blogRouter.post('/', async (c) => {
 	const authorId = c.get('userId');
+	const body = await c.req.json();
+
+	const {success} =createBlogInput.safeParse(body);
+
+	if(!success){
+	   c.status(411);
+	   return c.json({
+		 message : "Inputs not correct"
+	   })
+	}
 	const prisma = new PrismaClient({
 		datasourceUrl: c.env?.DATABASE_URL	,
 	}).$extends(withAccelerate());
 
-	const body = await c.req.json();
 	const post = await prisma.blog.create({
 		data: {
 			title: body.title,
@@ -50,12 +60,24 @@ blogRouter.post('/', async (c) => {
 })
 
 blogRouter.put('/', async (c) => {
+
+	const body = await c.req.json();
 	const authorId = c.get('userId');
+    
+	const {success} =updateBlogInput.safeParse(body);
+
+	if(!success){
+	   c.status(411);
+	   return c.json({
+		 message : "Inputs not correct"
+	   })
+	}
+
+
 	const prisma = new PrismaClient({
 		datasourceUrl: c.env?.DATABASE_URL	,
 	}).$extends(withAccelerate());
 
-	const body = await c.req.json();
 	 const blog= await prisma.blog.update({
 		where: {
 			id: body.id,
@@ -77,7 +99,18 @@ blogRouter.get("/bulk", async (c)=>{
 		datasourceUrl: c.env?.DATABASE_URL	,
 	}).$extends(withAccelerate());
 
-    const blogs = await prisma.blog.findMany();
+    const blogs = await prisma.blog.findMany({
+		select : {
+			content : true ,
+			title : true ,
+			id : true ,
+			author : {
+				select : {
+					name : true
+				}
+			}
+		}
+	});
 
     return c.json({
         blogs: blogs
@@ -94,6 +127,16 @@ blogRouter.get('/:id', async (c) => {
 	const blog = await prisma.blog.findFirst({
 		where: {
 			id: Number(id)
+		},
+		select : {
+			id : true,
+			title :true,
+			content : true,
+			author : {
+				select : {
+					name : true
+				}
+			}
 		}
 	});
 

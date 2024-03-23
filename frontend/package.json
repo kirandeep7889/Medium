@@ -1,0 +1,25 @@
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@kirandeep_7889/medium-common": "^1.0.0",
+    "axios": "^1.6.7",
+    "preact": "^10.19.6",
+    "react-router-dom": "^6.22.3"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.8.1",
+    "autoprefixer": "^10.4.18",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.2.2",
+    "vite": "^5.1.6"
+  }
+}
